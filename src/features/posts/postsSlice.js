@@ -23,12 +23,20 @@ const postsSlice = createSlice({
     // generates an "action creator" function with the same name:
     postAdded(state, action) {
       state.push(action.payload)
-    }
+    },
+    postUpdated(state, action) {
+      const { id, title, content } = action.payload
+      const existingPost = state.find(post => post.id === id)
+      if (existingPost) {
+        existingPost.title = title
+        existingPost.content = content
+      }
+    },
   }
 })
 
 // we then export the action creator and use it in our components to 
-// dispatch the action when the user clicks "save post":
-export const { postAdded } = postsSlice.actions
+// dispatch the action when the user clicks "save post" or "edit post":
+export const { postAdded, postUpdated } = postsSlice.actions
 
 export default postsSlice.reducer;
