@@ -1,16 +1,18 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, nanoid } from '@reduxjs/toolkit';
 
 const initialState = [
   {
     id: '1', 
     title: 'First Post!',
-    content: 'Hello!'
+    content: 'Hello!',
+    user: '0'
   },
   {
     id: '2',
     title: 'Second Post',
-    content: 'More text'
-  }
+    content: 'More text',
+    user: '2'
+  },
 ]
 
 // don't try to mutate any data outside of createSlice!
@@ -19,10 +21,20 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    // when we write the postAdded reducer function, createSlice automagically 
-    // generates an "action creator" function with the same name:
-    postAdded(state, action) {
-      state.push(action.payload)
+    postAdded: {
+      reducer (state, action) {
+        state.push(action.payload)
+      },
+      prepare(title, content, userId) {
+        return {
+          payload: {
+            id: nanoid(),
+            title,
+            content,
+            user: userId,
+          }
+        }
+      }
     },
     postUpdated(state, action) {
       const { id, title, content } = action.payload
