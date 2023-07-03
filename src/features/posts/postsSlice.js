@@ -1,5 +1,5 @@
 import { createSlice, nanoid, createAsyncThunk } from '@reduxjs/toolkit';
-import { sub } from 'date-fns';
+// import { sub } from 'date-fns';
 import { client } from '../../api/client';
 
 // using API to fetch initial state data now: We'll switch our state from being an array of posts by itself, to look like {posts, status, error}. We'll also remove the old sample post entries from our initial state. 
@@ -35,23 +35,24 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    postAdded: {
-      reducer (state, action) {
-        state.posts.push(action.payload)
-      },
-      prepare(title, content, userId) {
-        return {
-          payload: {
-            id: nanoid(),
-            date: new Date().toISOString(),
-            title,
-            content,
-            user: userId,
-            reactions: {thumbsUp: 0, hooray: 0, heart: 0, rocket: 0, eyes: 0},
-          },
-        }
-      }
-    },
+    // No longer need the existing `postAdded` reducer and prepare callback:
+    // postAdded: {
+    //   reducer (state, action) {
+    //     state.posts.push(action.payload)
+    //   },
+    //   prepare(title, content, userId) {
+    //     return {
+    //       payload: {
+    //         id: nanoid(),
+    //         date: new Date().toISOString(),
+    //         title,
+    //         content,
+    //         user: userId,
+    //         reactions: {thumbsUp: 0, hooray: 0, heart: 0, rocket: 0, eyes: 0},
+    //       },
+    //     }
+    //   }
+    // },
     reactionAdded(state, action) {
       const { postId, reaction } = action.payload
       const existingPost = state.posts.find(post => post.id === postId)
@@ -81,6 +82,10 @@ const postsSlice = createSlice({
         state.status = 'failed'
         state.error = action.error.message
       })
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        // We can directly add the new post object to our posts array:
+        state.posts.push(action.payload)
+      })
   }
 })
 
@@ -105,3 +110,14 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   return response.data
   // response.data returns just the array of posts
 })
+
+export const addNewPost = createAsyncThunk(
+  'posts/addNewPost',
+  // The payload creator receives the partial `{title, content, user}` object
+  async initialPost => {
+    // We send the initial data to the fake API server
+    const response = await client.post('/fakeApi/posts', initialPost)
+    // The response includes the complete post object, including unique ID that's generated
+    return response.data
+  }
+)
