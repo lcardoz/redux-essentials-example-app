@@ -18,12 +18,12 @@ export const NotificationsList = () => {
     const date = parseISO(notification.date)
     const timeAgo = formatDistanceToNow(date)
     const user = users.find(user => user.id === notification.user) || { name: 'Unknown User' }
-    const notificationClassname = classnames('notification', {
+    const notificationClassName = classnames('notification', {
       new: notification.isNew
     })
 
     return (
-      <div key={notification.id} className={notificationClassname}>
+      <div key={notification.id} className={notificationClassName}>
         <div>
           <b>{user.name}</b>
           {notification.message}
